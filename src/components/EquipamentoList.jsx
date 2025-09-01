@@ -2,7 +2,7 @@ import React from "react";
 
 export default function EquipamentoList({ data, onRemove }) {
   return (
-    <table border="1" cellPadding="5" style={{ width: "100%", marginTop: "10px" }}>
+    <table className="styled-table">
       <thead>
         <tr>
           <th>Nome</th>
@@ -17,7 +17,9 @@ export default function EquipamentoList({ data, onRemove }) {
             <td>{e.nome}</td>
             <td>{e.modelo}</td>
             <td>{e.fabricante}</td>
-            <td><button onClick={() => onRemove(e.id)}>Excluir</button></td>
+            <td>
+              <button className="btn danger" onClick={() => onRemove(e.id)}>Excluir</button>
+            </td>
           </tr>
         ))}
       </tbody>

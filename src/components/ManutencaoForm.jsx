@@ -13,7 +13,7 @@ export default function ManutencaoForm({ equipamentos, onAdd }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+    <form className="form" onSubmit={handleSubmit}>
       <select name="equipamento_id" value={form.equipamento_id} onChange={handleChange}>
         <option value="">Selecione o Equipamento</option>
         {equipamentos.map((e) => (
@@ -32,7 +32,7 @@ export default function ManutencaoForm({ equipamentos, onAdd }) {
         <option value="Em andamento">Em andamento</option>
         <option value="Concluída">Concluída</option>
       </select>
-      <button type="submit">Adicionar</button>
+      <button type="submit" className="btn">Adicionar</button>
     </form>
   );
 }

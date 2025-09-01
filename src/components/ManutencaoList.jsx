@@ -7,7 +7,7 @@ export default function ManutencaoList({ data, equipamentos, onRemove }) {
   };
 
   return (
-    <table border="1" cellPadding="5" style={{ width: "100%", marginTop: "10px" }}>
+    <table className="styled-table">
       <thead>
         <tr>
           <th>Equipamento</th>
@@ -24,7 +24,9 @@ export default function ManutencaoList({ data, equipamentos, onRemove }) {
             <td>{m.tipo}</td>
             <td>{m.descricao}</td>
             <td>{m.status}</td>
-            <td><button onClick={() => onRemove(m.id)}>Excluir</button></td>
+            <td>
+              <button className="btn danger" onClick={() => onRemove(m.id)}>Excluir</button>
+            </td>
           </tr>
         ))}
       </tbody>

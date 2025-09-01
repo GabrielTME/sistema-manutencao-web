@@ -13,11 +13,11 @@ export default function EquipamentoForm({ onAdd }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+    <form className="form" onSubmit={handleSubmit}>
       <input name="nome" placeholder="Nome" value={form.nome} onChange={handleChange} />
       <input name="modelo" placeholder="Modelo" value={form.modelo} onChange={handleChange} />
       <input name="fabricante" placeholder="Fabricante" value={form.fabricante} onChange={handleChange} />
-      <button type="submit">Adicionar</button>
+      <button type="submit" className="btn">Adicionar</button>
     </form>
   );
 }
