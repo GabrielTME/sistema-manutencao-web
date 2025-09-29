@@ -1,0 +1,197 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { stockItemsData } from '../data/stockItems';
+import Modal from '../components/Modal';
+
+const StockList = () => {
+  const [stockItems, setStockItems] = useState(stockItemsData);
+  const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [isPhotoModalOpen, setPhotoModalOpen] = useState(false);
+  const [selectedPhotoUrl, setSelectedPhotoUrl] = useState('');
+
+  const initialItemState = { name: '', id: '', quantity: 0, unitValue: 0, photoUrl: '' };
+  const [newItem, setNewItem] = useState(initialItemState);
+  const [editFormData, setEditFormData] = useState(initialItemState);
+
+  useEffect(() => {
+    if (currentItem) {
+      setEditFormData(currentItem);
+    }
+  }, [currentItem]);
+
+  const totalValue = stockItems.reduce((acc, item) => acc + (item.quantity * item.unitValue), 0);
+
+  const handleEditClick = (item) => {
+    setCurrentItem(item);
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (itemId) => {
+    if (window.confirm("Tem certeza que deseja excluir este item?")) {
+      setStockItems(stockItems.filter(item => item.id !== itemId));
+    }
+  };
+  
+  const handlePhotoClick = (photoUrl) => {
+    if (photoUrl) {
+      setSelectedPhotoUrl(photoUrl);
+      setPhotoModalOpen(true);
+    }
+  };
+
+  const handleNewItemChange = (e) => {
+    const { name, value } = e.target;
+    setNewItem(prevState => ({ ...prevState, [name]: value }));
+  };
+
+  const handleAddStockItem = () => {
+    if (!newItem.name || !newItem.id) {
+      alert('Por favor, preencha o nome e o código do item.');
+      return;
+    }
+    setStockItems([...stockItems, { ...newItem, quantity: Number(newItem.quantity), unitValue: Number(newItem.unitValue) }]);
+    setNewItem(initialItemState);
+    setAddModalOpen(false);
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prevState => ({ ...prevState, [name]: value }));
+  };
+
+  const handleUpdateStockItem = () => {
+    setStockItems(stockItems.map(item => item.id === editFormData.id ? { ...editFormData, quantity: Number(editFormData.quantity), unitValue: Number(editFormData.unitValue) } : item));
+    setEditModalOpen(false);
+    setCurrentItem(null);
+  };
+
+  const getStatusTag = (quantity) => {
+    if (quantity === 0) {
+      return <span className="status-tag out-of-stock">Sem Estoque</span>;
+    }
+    if (quantity <= 5) {
+      return <span className="status-tag low-stock">Estoque Baixo</span>;
+    }
+    return <span className="status-tag in-stock">Em Estoque</span>;
+  };
+
+  return (
+    <div className="container">
+      <div className="page-header">
+        <div className="page-header-left">
+          <Link to="/" className="btn btn-secondary btn-back">&larr; Voltar</Link>
+          <h1>Itens em Estoque</h1>
+        </div>
+        <button className="btn btn-primary" onClick={() => setAddModalOpen(true)}>+ Adicionar Item</button>
+      </div>
+
+      <div className="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nome do Item</th>
+              <th>Código do Item</th>
+              <th>Quantidade em Estoque</th>
+              <th>Valor Unitário</th>
+              <th>Valor Total</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stockItems.map((item) => (
+              <tr key={item.id}>
+                <td>
+                  <img 
+                    src={item.photoUrl || 'https://via.placeholder.com/40x40.png?text=Sem+Foto'} 
+                    alt={item.name} 
+                    className="table-photo-thumb"
+                    onClick={() => handlePhotoClick(item.photoUrl)}
+                  />
+                </td>
+                <td>{item.name}</td>
+                <td><span className="id-tag">{item.id}</span></td>
+                <td>{item.quantity} {getStatusTag(item.quantity)}</td>
+                <td>{`R$ ${Number(item.unitValue).toFixed(2)}`}</td>
+                <td>{`R$ ${(item.quantity * item.unitValue).toFixed(2)}`}</td>
+                <td>
+                  <div className="actions-group">
+                    <button className="btn btn-secondary" onClick={() => handleEditClick(item)}>Editar</button>
+                    <button className="btn btn-danger" onClick={() => handleDeleteClick(item.id)}>Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p style={{textAlign: 'right', marginTop: '1rem', fontWeight: 'bold'}}>
+            Valor Total do Estoque: R$ {totalValue.toFixed(2)}
+        </p>
+      </div>
+
+      <Modal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} title="Adicionar Item ao Estoque">
+         <p className="modal-subtitle">Preencha as informações do novo item.</p>
+         <div className="form-group">
+            <label htmlFor="name">Nome do Item</label>
+            <input type="text" name="name" value={newItem.name} onChange={handleNewItemChange} placeholder="Ex.: Filtro de óleo"/>
+         </div>
+         <div className="form-group">
+            <label htmlFor="id">Código do Item</label>
+            <input type="text" name="id" value={newItem.id} onChange={handleNewItemChange} placeholder="Ex.: FLTRO001"/>
+         </div>
+         <div className="form-group">
+            <label htmlFor="quantity">Quantidade</label>
+            <input type="number" name="quantity" value={newItem.quantity} onChange={handleNewItemChange} />
+         </div>
+         <div className="form-group">
+            <label htmlFor="unitValue">Valor Unitário</label>
+            <input type="number" name="unitValue" value={newItem.unitValue} onChange={handleNewItemChange} />
+         </div>
+         <div className="form-group">
+            <label htmlFor="photoUrl">Foto (URL)</label>
+            <input type="text" name="photoUrl" value={newItem.photoUrl} onChange={handleNewItemChange} placeholder="https://exemplo.com/foto.jpg"/>
+         </div>
+         <div className="modal-actions">
+           <button className="btn btn-secondary" onClick={() => setAddModalOpen(false)}>Cancelar</button>
+           <button className="btn btn-primary" onClick={handleAddStockItem}>Adicionar</button>
+         </div>
+      </Modal>
+
+      <Modal isOpen={isEditModalOpen} onClose={() => setEditModalOpen(false)} title="Editar Item">
+         <p className="modal-subtitle">Modifique as informações do item em estoque.</p>
+         <div className="form-group">
+            <label htmlFor="edit-name">Nome do Item</label>
+            <input type="text" name="name" value={editFormData.name} onChange={handleEditFormChange} />
+         </div>
+         <div className="form-group">
+            <label htmlFor="edit-id">Código do Item</label>
+            <input type="text" name="id" value={editFormData.id} readOnly disabled />
+         </div>
+         <div className="form-group">
+            <label htmlFor="edit-quantity">Quantidade</label>
+            <input type="number" name="quantity" value={editFormData.quantity} onChange={handleEditFormChange} />
+         </div>
+         <div className="form-group">
+            <label htmlFor="edit-unitValue">Valor Unitário</label>
+            <input type="number" name="unitValue" value={editFormData.unitValue} onChange={handleEditFormChange} />
+         </div>
+         <div className="form-group">
+            <label htmlFor="edit-photoUrl">Foto (URL)</label>
+            <input type="text" name="photoUrl" value={editFormData.photoUrl} onChange={handleEditFormChange} placeholder="https://exemplo.com/foto.jpg"/>
+         </div>
+         <div className="modal-actions">
+           <button className="btn btn-secondary" onClick={() => setEditModalOpen(false)}>Cancelar</button>
+           <button className="btn btn-primary" onClick={handleUpdateStockItem}>Salvar Alterações</button>
+         </div>
+      </Modal>
+      
+      <Modal isOpen={isPhotoModalOpen} onClose={() => setPhotoModalOpen(false)} title="Foto do Item">
+        <img src={selectedPhotoUrl} alt="Item do Estoque" className="photo-modal-img"/>
+      </Modal>
+    </div>
+  );
+};
+
+export default StockList;
