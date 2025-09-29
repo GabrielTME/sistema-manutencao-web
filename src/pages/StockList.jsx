@@ -11,17 +11,21 @@ const StockList = () => {
   const [isPhotoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedPhotoUrl, setSelectedPhotoUrl] = useState('');
 
-  const initialItemState = { name: '', id: '', quantity: 0, unitValue: 0, photoUrl: '' };
+  const initialItemState = { name: '', id: '', quantity: '', unitValue: '', photoUrl: '' };
   const [newItem, setNewItem] = useState(initialItemState);
   const [editFormData, setEditFormData] = useState(initialItemState);
 
   useEffect(() => {
     if (currentItem) {
-      setEditFormData(currentItem);
+      const formattedItem = {
+        ...currentItem,
+        unitValue: String(Number(currentItem.unitValue).toFixed(2)).replace('.', '')
+      };
+      setEditFormData(formattedItem);
     }
   }, [currentItem]);
 
-  const totalValue = stockItems.reduce((acc, item) => acc + (item.quantity * item.unitValue), 0);
+  const totalValue = stockItems.reduce((acc, item) => acc + (item.quantity * Number(item.unitValue)), 0);
 
   const handleEditClick = (item) => {
     setCurrentItem(item);
@@ -51,7 +55,12 @@ const StockList = () => {
       alert('Por favor, preencha o nome e o código do item.');
       return;
     }
-    setStockItems([...stockItems, { ...newItem, quantity: Number(newItem.quantity), unitValue: Number(newItem.unitValue) }]);
+    const finalNewItem = {
+      ...newItem,
+      quantity: Number(newItem.quantity),
+      unitValue: Number(newItem.unitValue) / 100
+    };
+    setStockItems([...stockItems, finalNewItem]);
     setNewItem(initialItemState);
     setAddModalOpen(false);
   };
@@ -62,18 +71,36 @@ const StockList = () => {
   };
 
   const handleUpdateStockItem = () => {
-    setStockItems(stockItems.map(item => item.id === editFormData.id ? { ...editFormData, quantity: Number(editFormData.quantity), unitValue: Number(editFormData.unitValue) } : item));
+    const finalEditedItem = {
+      ...editFormData,
+      quantity: Number(editFormData.quantity),
+      unitValue: Number(editFormData.unitValue) / 100
+    };
+    setStockItems(stockItems.map(item => item.id === finalEditedItem.id ? finalEditedItem : item));
     setEditModalOpen(false);
     setCurrentItem(null);
   };
 
+  const handleCurrencyChange = (e, stateSetter) => {
+    const { name, value } = e.target;
+    const digits = value.replace(/[^\d]/g, '');
+    stateSetter(prevState => ({ ...prevState, [name]: digits }));
+  };
+
+  const formatCurrencyForInput = (digits) => {
+    if (!digits) return '';
+    const value = Number(digits) / 100;
+    return value.toFixed(2).replace('.', ',');
+  };
+  
+  const formatCurrencyForDisplay = (value) => {
+    return Number(value).toFixed(2).replace('.', ',');
+  };
+
   const getStatusTag = (quantity) => {
-    if (quantity === 0) {
-      return <span className="status-tag out-of-stock">Sem Estoque</span>;
-    }
-    if (quantity <= 5) {
-      return <span className="status-tag low-stock">Estoque Baixo</span>;
-    }
+    const qty = Number(quantity);
+    if (qty === 0) return <span className="status-tag out-of-stock">Sem Estoque</span>;
+    if (qty <= 5) return <span className="status-tag low-stock">Estoque Baixo</span>;
     return <span className="status-tag in-stock">Em Estoque</span>;
   };
 
@@ -103,7 +130,7 @@ const StockList = () => {
           <tbody>
             {stockItems.map((item) => (
               <tr key={item.id}>
-                <td>
+                <td className="td-photo">
                   <img 
                     src={item.photoUrl || 'https://via.placeholder.com/40x40.png?text=Sem+Foto'} 
                     alt={item.name} 
@@ -114,8 +141,8 @@ const StockList = () => {
                 <td>{item.name}</td>
                 <td><span className="id-tag">{item.id}</span></td>
                 <td>{item.quantity} {getStatusTag(item.quantity)}</td>
-                <td>{`R$ ${Number(item.unitValue).toFixed(2)}`}</td>
-                <td>{`R$ ${(item.quantity * item.unitValue).toFixed(2)}`}</td>
+                <td>{`R$${formatCurrencyForDisplay(item.unitValue)}`}</td>
+                <td>{`R$${formatCurrencyForDisplay(item.quantity * item.unitValue)}`}</td>
                 <td>
                   <div className="actions-group">
                     <button className="btn btn-secondary" onClick={() => handleEditClick(item)}>Editar</button>
@@ -127,7 +154,7 @@ const StockList = () => {
           </tbody>
         </table>
         <p style={{textAlign: 'right', marginTop: '1rem', fontWeight: 'bold'}}>
-            Valor Total do Estoque: R$ {totalValue.toFixed(2)}
+            Valor Total do Estoque: R${formatCurrencyForDisplay(totalValue)}
         </p>
       </div>
 
@@ -147,7 +174,7 @@ const StockList = () => {
          </div>
          <div className="form-group">
             <label htmlFor="unitValue">Valor Unitário</label>
-            <input type="number" name="unitValue" value={newItem.unitValue} onChange={handleNewItemChange} />
+            <input type="text" inputMode="decimal" name="unitValue" value={formatCurrencyForInput(newItem.unitValue)} onChange={(e) => handleCurrencyChange(e, setNewItem)} />
          </div>
          <div className="form-group">
             <label htmlFor="photoUrl">Foto (URL)</label>
@@ -175,7 +202,7 @@ const StockList = () => {
          </div>
          <div className="form-group">
             <label htmlFor="edit-unitValue">Valor Unitário</label>
-            <input type="number" name="unitValue" value={editFormData.unitValue} onChange={handleEditFormChange} />
+            <input type="text" inputMode="decimal" name="unitValue" value={formatCurrencyForInput(editFormData.unitValue)} onChange={(e) => handleCurrencyChange(e, setEditFormData)} placeholder="R$ 0,00" />
          </div>
          <div className="form-group">
             <label htmlFor="edit-photoUrl">Foto (URL)</label>

@@ -1,7 +1,7 @@
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --primary-color: #2563eb;
-  --background-color: #f0f2f5;
+  --background-color: #e0f2fe;
   --card-background: #ffffff;
   --text-color: #1e293b;
   --text-color-secondary: #64748b;
@@ -571,4 +571,16 @@ body[data-theme='dark'] .status-tag.out-of-stock {
 .actions-group {
   display: flex;
   gap: 0.5rem;
+}
+
+td {
+  vertical-align: middle;
+}
+
+.td-photo {
+  width: 60px; 
+}
+
+.table-photo-thumb {
+  display: block;
 }

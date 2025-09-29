@@ -59,7 +59,7 @@ const Dashboard = () => {
             </svg>
           </div>
           <h3>Cadastro de Marcas</h3>
-          <p>Gerenciar marcas e fornecedores</p>
+          <p>Gerenciar marcas</p>
           <button className="btn btn-primary">Acessar</button>
         </Link>
       </div>
