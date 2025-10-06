@@ -4,6 +4,7 @@ import { serviceOrderDetailsData } from '../data/serviceOrderDetails';
 import './ServiceOrderDetail/ServiceOrderDetail.css';
 import TabPrincipal from './ServiceOrderDetail/TabPrincipal';
 import TabHistorico from './ServiceOrderDetail/TabHistorico';
+import TabInformacoesAdicionais from './ServiceOrderDetail/TabInformacoesAdicionais';
 
 const ServiceOrderDetail = () => {
     const { id } = useParams();
@@ -21,13 +22,9 @@ const ServiceOrderDetail = () => {
         setOrder(prevOrder => ({...prevOrder, status: newStatus}));
     };
 
-    const handleAddTechnician = (techName) => {
-        if (techName && !order.technicians.includes(techName)) {
-            setOrder(prevOrder => ({
-                ...prevOrder,
-                technicians: [...prevOrder.technicians, techName]
-            }));
-        }
+    const handleInfoChange = (e) => {
+        const { name, value } = e.target;
+        setOrder(prevOrder => ({...prevOrder, [name]: value}));
     };
 
     const handleDeletePart = (partId) => {
@@ -68,7 +65,6 @@ const ServiceOrderDetail = () => {
                 return <TabPrincipal 
                     order={order} 
                     onStatusChange={handleStatusChange} 
-                    onAddTechnician={handleAddTechnician}
                     onAddNewPart={handleAddNewPart}
                     onDeletePart={handleDeletePart}
                     onUpdatePart={handleUpdatePart}
@@ -76,7 +72,7 @@ const ServiceOrderDetail = () => {
             case 'historico':
                 return <TabHistorico history={order.statusHistory} />;
             case 'informacoes':
-                 return <div className="tab-pane"><p>Informações Adicionais em desenvolvimento...</p></div>;
+                 return <TabInformacoesAdicionais order={order} onInfoChange={handleInfoChange} />;
             case 'observacoes':
                  return <div className="tab-pane"><p>Observações em desenvolvimento...</p></div>;
             case 'imagem':

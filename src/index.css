@@ -214,62 +214,31 @@ body[data-theme='dark'] .btn-secondary {
 
 .dashboard-container {
   text-align: center;
-  padding: 2rem;
+  padding: 4rem 2rem; /* Aumentei o padding pra afastar o fundo azul */
+  background-color: var(--background-color);
 }
-
+ 
 .dashboard-header {
   margin-bottom: 3rem;
 }
-
-.dashboard-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  justify-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.card {
-  background-color: var(--card-background);
-  padding: 2rem;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 280px;
-  text-decoration: none;
-  color: var(--text-color);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card h3 {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-.card p {
-  color: var(--text-color-secondary);
-  margin-bottom: 2rem;
-  flex-grow: 1;
-}
-
+ 
 .card-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 auto 15px auto; /* centraliza e mantém espaçamento */
 }
-
+ 
+.card-icon svg {
+  width: 34px;
+  height: 34px;
+  color: white;
+}
+ 
+ 
 .card-icon svg {
     width: 32px;
     height: 32px;
@@ -599,6 +568,13 @@ body[data-theme='dark'] .form-select {
   vertical-align: middle;
 }
 
+.quantity-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
 .status-tag.in-stock {
   background-color: #dcfce7;
   color: #166534;
@@ -653,9 +629,15 @@ body[data-theme='dark'] .status-tag.pending-parts {
   color: #fef3c7;
 }
 
-.quantity-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
+textarea.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
 }
