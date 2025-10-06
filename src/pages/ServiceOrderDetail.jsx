@@ -12,8 +12,51 @@ const ServiceOrderDetail = () => {
 
     useEffect(() => {
         const orderData = serviceOrderDetailsData[id];
-        setOrder(orderData);
+        if (orderData) {
+            setOrder(orderData);
+        }
     }, [id]);
+
+    const handleStatusChange = (newStatus) => {
+        setOrder(prevOrder => ({...prevOrder, status: newStatus}));
+    };
+
+    const handleAddTechnician = (techName) => {
+        if (techName && !order.technicians.includes(techName)) {
+            setOrder(prevOrder => ({
+                ...prevOrder,
+                technicians: [...prevOrder.technicians, techName]
+            }));
+        }
+    };
+
+    const handleDeletePart = (partId) => {
+        if (window.confirm("Tem certeza que deseja excluir este item?")) {
+            setOrder(prevOrder => ({
+                ...prevOrder,
+                parts: prevOrder.parts.filter(part => part.id !== partId)
+            }));
+        }
+    };
+
+    const handleUpdatePart = (updatedPart) => {
+        setOrder(prevOrder => ({
+            ...prevOrder,
+            parts: prevOrder.parts.map(part => part.id === updatedPart.id ? updatedPart : part)
+        }));
+    };
+    
+    const handleAddNewPart = (newPart) => {
+        const finalNewPart = {
+            ...newPart,
+            quantity: Number(newPart.quantity),
+            unitValue: Number(newPart.unitValue)
+        };
+        setOrder(prevOrder => ({
+            ...prevOrder,
+            parts: [...prevOrder.parts, finalNewPart]
+        }));
+    };
 
     if (!order) {
         return <div className="container">Carregando... ou Ordem de Serviço não encontrada.</div>;
@@ -22,15 +65,22 @@ const ServiceOrderDetail = () => {
     const renderTabContent = () => {
         switch (activeTab) {
             case 'principal':
-                return <TabPrincipal order={order} />;
+                return <TabPrincipal 
+                    order={order} 
+                    onStatusChange={handleStatusChange} 
+                    onAddTechnician={handleAddTechnician}
+                    onAddNewPart={handleAddNewPart}
+                    onDeletePart={handleDeletePart}
+                    onUpdatePart={handleUpdatePart}
+                />;
             case 'historico':
                 return <TabHistorico history={order.statusHistory} />;
             case 'informacoes':
-                 return <div className="tab-pane"><p>Informações Adicionais em desenvolvimento...</p></div>
+                 return <div className="tab-pane"><p>Informações Adicionais em desenvolvimento...</p></div>;
             case 'observacoes':
-                 return <div className="tab-pane"><p>Observações em desenvolvimento...</p></div>
+                 return <div className="tab-pane"><p>Observações em desenvolvimento...</p></div>;
             case 'imagem':
-                return <div className="tab-pane"><p>Imagens em desenvolvimento...</p></div>
+                return <div className="tab-pane"><p>Imagens em desenvolvimento...</p></div>;
             default:
                 return null;
         }
@@ -38,10 +88,12 @@ const ServiceOrderDetail = () => {
 
     return (
         <div className="container">
-            <Link to="/ordens-de-servico" className="btn btn-secondary btn-back">&larr; Voltar</Link>
-            <div className="detail-header">
-                <h1>Ordem de Serviço - Orçamento</h1>
-                <div>
+            <div className="page-header">
+                <div className="page-header-left">
+                    <Link to="/ordens-de-servico" className="btn btn-secondary btn-back">&larr; Voltar</Link>
+                    <h1>Ordem de Serviço - Orçamento</h1>
+                </div>
+                <div className="page-header-right">
                     <button className="btn btn-secondary">+ Novo</button>
                     <button className="btn btn-secondary">Editar</button>
                     <button className="btn btn-primary">Salvar</button>

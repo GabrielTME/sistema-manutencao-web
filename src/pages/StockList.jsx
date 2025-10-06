@@ -1,19 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { stockItemsData } from '../data/stockItems';
+import { itemTypesData } from '../data/itemTypes';
 import Modal from '../components/Modal';
 
 const StockList = () => {
   const [stockItems, setStockItems] = useState(stockItemsData);
+  const [filteredItems, setFilteredItems] = useState(stockItemsData);
+  const [filterType, setFilterType] = useState('Todos');
+
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
   const [isPhotoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedPhotoUrl, setSelectedPhotoUrl] = useState('');
 
-  const initialItemState = { name: '', id: '', quantity: '', unitValue: '', photoUrl: '' };
+  const initialItemState = { name: '', id: '', quantity: '', unitValue: '', photoUrl: '', type: '' };
   const [newItem, setNewItem] = useState(initialItemState);
   const [editFormData, setEditFormData] = useState(initialItemState);
+
+  useEffect(() => {
+    if (filterType === 'Todos') {
+      setFilteredItems(stockItems);
+    } else {
+      setFilteredItems(stockItems.filter(item => item.type === filterType));
+    }
+  }, [filterType, stockItems]);
 
   useEffect(() => {
     if (currentItem) {
@@ -25,7 +37,7 @@ const StockList = () => {
     }
   }, [currentItem]);
 
-  const totalValue = stockItems.reduce((acc, item) => acc + (item.quantity * Number(item.unitValue)), 0);
+  const totalValue = filteredItems.reduce((acc, item) => acc + (item.quantity * Number(item.unitValue)), 0);
 
   const handleEditClick = (item) => {
     setCurrentItem(item);
@@ -51,8 +63,8 @@ const StockList = () => {
   };
 
   const handleAddStockItem = () => {
-    if (!newItem.name || !newItem.id) {
-      alert('Por favor, preencha o nome e o código do item.');
+    if (!newItem.name || !newItem.id || !newItem.type) {
+      alert('Por favor, preencha o nome, código e tipo do item.');
       return;
     }
     const finalNewItem = {
@@ -114,6 +126,23 @@ const StockList = () => {
         <button className="btn btn-primary" onClick={() => setAddModalOpen(true)}>+ Adicionar Item</button>
       </div>
 
+      <div className="filter-box">
+        <div className="form-group">
+          <label htmlFor="filterType">Filtrar por Tipo de Item</label>
+          <select 
+            id="filterType" 
+            className="form-select" 
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+          >
+            <option value="Todos">Todos</option>
+            {itemTypesData.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="table-wrapper">
         <table>
           <thead>
@@ -121,14 +150,15 @@ const StockList = () => {
               <th>Foto</th>
               <th>Nome do Item</th>
               <th>Código do Item</th>
-              <th>Quantidade em Estoque</th>
+              <th>Tipo do Item</th>
+              <th>Quantidade</th>
               <th>Valor Unitário</th>
               <th>Valor Total</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {stockItems.map((item) => (
+            {filteredItems.map((item) => (
               <tr key={item.id}>
                 <td className="td-photo">
                   <img 
@@ -140,7 +170,13 @@ const StockList = () => {
                 </td>
                 <td>{item.name}</td>
                 <td><span className="id-tag">{item.id}</span></td>
-                <td>{item.quantity} {getStatusTag(item.quantity)}</td>
+                <td>{item.type}</td>
+                <td>
+                  <div className="quantity-cell">
+                    <span>{item.quantity}</span>
+                    {getStatusTag(item.quantity)}
+                  </div>
+                </td>
                 <td>{`R$${formatCurrencyForDisplay(item.unitValue)}`}</td>
                 <td>{`R$${formatCurrencyForDisplay(item.quantity * item.unitValue)}`}</td>
                 <td>
@@ -169,6 +205,13 @@ const StockList = () => {
             <input type="text" name="id" value={newItem.id} onChange={handleNewItemChange} placeholder="Ex.: FLTRO001"/>
          </div>
          <div className="form-group">
+            <label htmlFor="type">Tipo do Item</label>
+            <select name="type" className="form-select" value={newItem.type} onChange={handleNewItemChange}>
+              <option value="" disabled>Selecione um tipo</option>
+              {itemTypesData.map(type => (<option key={type} value={type}>{type}</option>))}
+            </select>
+         </div>
+         <div className="form-group">
             <label htmlFor="quantity">Quantidade</label>
             <input type="number" name="quantity" value={newItem.quantity} onChange={handleNewItemChange} />
          </div>
@@ -195,6 +238,13 @@ const StockList = () => {
          <div className="form-group">
             <label htmlFor="edit-id">Código do Item</label>
             <input type="text" name="id" value={editFormData.id} readOnly disabled />
+         </div>
+         <div className="form-group">
+            <label htmlFor="edit-type">Tipo do Item</label>
+            <select name="type" className="form-select" value={editFormData.type} onChange={handleEditFormChange}>
+              <option value="" disabled>Selecione um tipo</option>
+              {itemTypesData.map(type => (<option key={type} value={type}>{type}</option>))}
+            </select>
          </div>
          <div className="form-group">
             <label htmlFor="edit-quantity">Quantidade</label>

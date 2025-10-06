@@ -44,7 +44,7 @@ function Header() {
         {settingsOpen && (
           <div className="settings-menu">
             <div className="setting-item">
-              <span>Dark Mode</span>
+              <span>Modo Escuro</span>
               <label className="switch">
                 <input 
                   type="checkbox" 
